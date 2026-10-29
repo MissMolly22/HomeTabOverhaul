@@ -11,12 +11,12 @@ namespace HomeTabOverhaul;
 // facets for these come from cloud templates whose layout can only put the icon beside the text, so these are built
 // here from the same engine components the templates use (ButtonOpenHome, FullBodyCalibratorSpawner, ButtonToggle +
 // UserTrackingSpaceSync). Everything is a plain engine component, so the tiles save with the dash and keep working
-// without the mod. Icons and colours are the ones the templates use.
+// without the mod. Colours are the ones the templates use.
 internal static class Tiles
 {
-    // From the cloud templates (G-Resonite Inventory/Facets/Templates/OpenHome and FullBodyCalibrator).
-    private static readonly Uri HomeIcon = new("resdb:///35f2ba7abb89d5b3d25b095149e0907dee9169dded87510b614a9b0bc360b811");
-    private static readonly Uri CalibratorIcon = new("resdb:///9ed5c4c402e4051d1e88c7b22e936af164a6e10a68ae53233b20c03473427ab2.webp");
+    // The game's built-in icons (the cloud templates use their own images).
+    private static readonly Uri HomeIcon = OfficialAssets.Graphics.Icons.Dash.CloudHome;
+    private static readonly Uri CalibratorIcon = OfficialAssets.Graphics.Icons.Dash.Armature;
     private static readonly colorX Brown = new(0.2823529541492462f, 0.22352942824363708f, 0.16470588743686676f, 1f, ColorProfile.sRGB);
     private static readonly colorX Purple = new(0.2862745225429535f, 0.18431372940540314f, 0.3921568989753723f, 1f, ColorProfile.sRGB);
 

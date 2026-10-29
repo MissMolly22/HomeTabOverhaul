@@ -10,7 +10,7 @@ namespace HomeTabOverhaul;
 internal static class Layout
 {
     // Bump when the panel's structure changes: a Home built with an older layout is rebuilt on the next load.
-    public const string Version = "HomeTabOverhaul.layout.15";
+    public const string Version = "HomeTabOverhaul.layout.16";
 
     // The screen grid the engine uses is 64 x 36 cells. The fixed facets take the top 15 rows across the whole width;
     // below them the tab column takes the left 12 columns, the tab grids the middle, and a side grid (always shown,
@@ -36,13 +36,8 @@ internal static class Layout
         public IntRect Rect => new(new int2(X, Y), new int2(W, H));
     }
 
-    // A published facet loaded from the cloud into the tab once it's built.
-    public record Install(Uri Record, int X, int Y, int W, int H)
-    {
-        public IntRect Rect => new(new int2(X, Y), new int2(W, H));
-    }
 
-    public record Tab(string Name, Placement[] Facets, Install[]? Installs = null);
+    public record Tab(string Name, Placement[] Facets);
 
     // The Dock tab (the dock editor) comes after the facet tabs.
     public static int DockTabId => Tabs.Length;
@@ -72,8 +67,6 @@ internal static class Layout
             Cell(typeof(AvatarCreatorFacetPreset), 0, 0),
             Cell(typeof(NewWorldFacetPreset), 1, 0),
             Cell(typeof(ClipboardPasteFacetPreset), 2, 0),
-            Cell(Actions.RedX, 0, 1),
-            Cell(Actions.BookStand, 1, 1),
         ]),
         new("Streaming/Camera",
         [
@@ -99,14 +92,13 @@ internal static class Layout
             Cell(typeof(VersionNumberFacetPreset), 0, 0),
             Cell(typeof(OnlineUserCountFacetPreset), 0, 1),
             Cell(typeof(ServerStatusFacetPreset), 0, 2),
-        ], [new(Actions.CommunityEvents, 12, 0, TabColumns - 12, TabRows)]),
+            new(null, 12, 0, TabColumns - 12, TabRows, LiveFacets.Events),
+        ]),
         new("Local Mirrors/Tools",
         [
-            Cell(Actions.MirracleMirror, 0, 0),
-            Cell(Actions.SimpleMirror, 1, 0),
-            Cell(Actions.ResoniteMirror, 2, 0),
-            Cell(Actions.LocalMirrorButton, 0, 1),
-            Cell(Actions.LocalLightButton, 1, 1),
+            Cell(Actions.DashMirror, 0, 0),
+            Cell(Actions.LocalMirrorButton, 1, 0),
+            Cell(Actions.LocalLightButton, 2, 0),
         ]),
     ];
 
@@ -143,36 +135,31 @@ internal static class Layout
         // The mod's.
         new(null, 30, 28, 6, 8, Tiles.Respawn),
         new(null, 50, 28, 14, 4, QuickSettings.Dimness),
-        Flat(Actions.LocalMirrorButton, 11, 15),
-        Flat(Actions.LocalLightButton, 20, 15),
-        new(null, 29, 15, 10, 3, QuickSettings.Earmuff),
-        Flat(Actions.MirracleMirror, 11, 12),
-        Flat(Actions.SimpleMirror, 20, 12),
-        Flat(Actions.ResoniteMirror, 29, 12, 10),
-        new(null, 11, 9, 9, 3, QuickSettings.EditDashUI),
-        Flat(Actions.RedX, 20, 9),
-        Flat(Actions.BookStand, 29, 9, 10),
+        new(null, 11, 15, 28, 13, LiveFacets.Events),
+        Flat(Actions.LocalMirrorButton, 11, 12),
+        Flat(Actions.LocalLightButton, 20, 12),
+        new(null, 29, 12, 10, 3, QuickSettings.Earmuff),
+        Flat(Actions.DashMirror, 11, 9),
+        new(null, 20, 9, 9, 3, QuickSettings.EditDashUI),
         new(null, 11, 4, 28, 5, QuickSettings.DashTint),
     ];
 
-    public static readonly Install[] FlatInstalls =
+    public static readonly Placement[] FlatLive =
     [
-        new(new Uri(Templates + "LeftControllerBattery"), 36, 32, 14, 4),
-        new(new Uri(Templates + "RightControllerBattery"), 36, 28, 14, 4),
-        new(new Uri(Templates + "HeadsetBattery"), 50, 32, 14, 4),
-        new(Actions.CommunityEvents, 11, 18, 28, 10),
-        new(Actions.WorldsYoureIn, 39, 4, 14, 24),
+        new(null, 36, 32, 14, 4, LiveFacets.LeftBattery),
+        new(null, 36, 28, 14, 4, LiveFacets.RightBattery),
+        new(null, 50, 32, 14, 4, LiveFacets.HeadsetBattery),
+        new(null, 39, 4, 14, 24, LiveFacets.Worlds),
     ];
 
     // The side grid on the right of the bottom half, shown whichever tab is open.
-    public static readonly Install[] Side = [new(Actions.WorldsYoureIn, 0, 0, SideColumns, TabRows)];
+    public static readonly Placement[] Side = [new(null, 0, 0, SideColumns, TabRows, LiveFacets.Worlds)];
 
-    // The game's own battery facets (cloud templates), stacked at the right end of the top.
-    private const string Templates = "resrec:///G-Resonite/Inventory/Facets/Templates/";
-    public static readonly Install[] FixedInstalls =
+    // The controller and headset batteries, stacked at the right end of the top.
+    public static readonly Placement[] FixedLive =
     [
-        new(new Uri(Templates + "LeftControllerBattery"), 53, 10, 11, 4),
-        new(new Uri(Templates + "RightControllerBattery"), 53, 6, 11, 4),
-        new(new Uri(Templates + "HeadsetBattery"), 53, 2, 11, 4),
+        new(null, 53, 10, 11, 4, LiveFacets.LeftBattery),
+        new(null, 53, 6, 11, 4, LiveFacets.RightBattery),
+        new(null, 53, 2, 11, 4, LiveFacets.HeadsetBattery),
     ];
 }

@@ -114,20 +114,11 @@ internal static class HomeBuilder
             Guard.Home.Run("placing the Home facets", () =>
             {
                 foreach (var placement in Layout.Fixed) AddFacet(homeGrid, placement);
-                foreach (var install in Layout.FixedInstalls)
-                    Actions.InstallInto(homeGrid, install.Record, "Battery facet",
-                        message => ResoniteMod.Msg($"Installing a battery facet: {message}"), install.Rect);
-                foreach (var install in Layout.Side)
-                    Actions.InstallInto(sideGrid, install.Record, "Side facet",
-                        message => ResoniteMod.Msg($"Installing into the side area: {message}"), install.Rect);
+                foreach (var placement in Layout.FixedLive) AddFacet(homeGrid, placement);
+                foreach (var placement in Layout.Side) AddFacet(sideGrid, placement);
                 for (var i = 0; i < tabGrids.Length; i++)
                 {
-                    var tab = Layout.Tabs[i]; // the report below runs later, after the loop has moved on
-                    foreach (var placement in tab.Facets) AddFacet(tabGrids[i], placement);
-                    // Loaded from the cloud, so they land a few seconds later (placed while the tab is still laid out).
-                    foreach (var install in tab.Installs ?? [])
-                        Actions.InstallInto(tabGrids[i], install.Record, tab.Name + " facet",
-                            message => ResoniteMod.Msg($"Installing into {tab.Name}: {message}"), install.Rect);
+                    foreach (var placement in Layout.Tabs[i].Facets) AddFacet(tabGrids[i], placement);
                     ShowWhenActive(tabGrids[i].Slot, active, i);
                     ShowWhenActive(tabGrids[i].FacetsRoot.Target, active, i);
                 }
@@ -137,9 +128,6 @@ internal static class HomeBuilder
                 homeGrid.NotifyModified();
                 ResoniteMod.Msg("New Home screen built.");
                 ApplyModes(screen);
-                // One-off, with the rebuild: the first mirror installs left duplicate dock tabs.
-                var dash = screen.Slot.GetComponentInParents<RadiantDash>();
-                if (dash != null) DockTabs.RemoveDuplicates(dash);
                 RefreshButtonsSoon(screen);
             });
         });

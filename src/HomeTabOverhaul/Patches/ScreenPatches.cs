@@ -33,6 +33,7 @@ internal static class ScreenPatches
             Guard.Home.Run("applying the Home settings", () => HomeModes.Apply(dash));
             Guard.Home.Run("setting up the dock folders", () => Dock.Setup(dash));
             Guard.Home.Run("opening the Home", () => HomeModes.OpenHome(dash));
+            Guard.Home.Run("starting the live facets", () => LiveFacets.Start(dash));
         }
         // A folder's buttons are rebuilt each time it's opened (they must point at this session's dash).
         if (Dock.IsFolder(__instance))

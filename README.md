@@ -29,19 +29,22 @@ Your current Home is kept as a dock tab called **Home (old)**, then the Home is 
 
 | Tab | What's in it |
 |---|---|
-| Create | Avatar Creator, New World, Paste from clipboard, Install RedX+, Creator Jam Book Stand |
+| Create | Avatar Creator, New World, Paste from clipboard |
 | Streaming/Camera | Camera, Stream Audio, Stream Video |
 | Quick Settings | Nameplates, custom nameplates, Freeform Dash, 2FA, Debug, Earmuff, Edit Dash UI, **Dimness**, **Dash Colour** |
-| Platform Info | Version, online users, cloud status, and the community events list |
-| Local Mirrors/Tools | Install the Mirracle or Simple Reversible mirror (as dock tabs), spawn the Resonite mirror, a **local mirror** and a **local light** |
+| Platform Info | Version, online users, cloud status, and **Resonite Events** |
+| Local Mirrors/Tools | Install the **Dash Mirror** (a dock tab), a **local mirror** and a **local light** |
 | Dock | The dock editor (see below) |
 
 - In UI Edit mode, **New Tab +** adds a blank tab; the box under the list renames or deletes the open tab. The list
   pages when there are more tabs than fit.
-- **Worlds You're In** sits on the right of the bottom half whichever tab is open.
+- **Worlds You're In** sits on the right of the bottom half whichever tab is open: press a world to switch to it, ✕
+  (twice) to leave it.
 - **Dimness** darkens everything you see (0–80 %), like SteamVR's dimming. Only you see it.
 - **Dash Colour** tints the background of every dash screen.
-- **Install buttons** (RedX+, mirrors) add a dock tab, then turn into **Uninstall …** (press twice).
+- **Install Dash Mirror** adds a dock tab that shows you like a mirror (Mirror / Camera, Near / Normal / Wide), then
+  turns into **Uninstall Dash Mirror** (press twice).
+- **Resonite Events** lists upcoming community events; press one for its description.
 
 **Local mirror and local light**
 
@@ -58,7 +61,8 @@ In UI Edit mode:
   dock tab of its own that shows a big button for each tab inside.
 - **New Tab +** makes an empty dock tab to fill with facets.
 - Type in a name to rename a tab or folder you made; click its icon or colour swatch to choose a new one.
-- **Delete** (press twice) removes a tab or folder you made; a folder's tabs go back on the dock.
+- **Delete** (press twice) removes a tab or folder you made, or an installed tab; a folder's tabs go back on the
+  dock.
 
 Folders, the order and your tabs are saved with the dash and keep working without the mod. Only a full dash reset in
 the game resets them.
@@ -85,9 +89,9 @@ Change these in the RML mod settings or in `rml_config/HomeTabOverhaul.json`. Th
 
 ## Good to know
 
-- **Cloud items.** Community Events and Worlds You're In are loaded from their public items when a Home is built; the
-  install buttons load RedX+, the mirrors and the book stand when you press them. Like anything placed in your dash,
-  they run their own code there, and the version loaded is the one their creators have published at that moment.
+- **No cloud items.** Everything on the Home is built by the mod itself or is the game's own. The only thing it
+  fetches is the public events list from `https://resonite-communities.com/v1/events` (at most every 15 minutes, while
+  the events list is showing).
 - **Before uninstalling the mod,** turn `enabled` off so Home (old) is your Home again.
 
 ## If a Resonite update breaks it
@@ -111,8 +115,8 @@ if Resonite isn't in the default Steam folder.
 
 ## Credits
 
-The install buttons and built-in facets load public Resonite items made by others, including RedX+ by Adam
-(AdamSkI2003) and the Mirracle mirror (dock screen base by badhaloninja). None of their contents are included here.
+The events list comes from [resonite-communities.com](https://resonite-communities.com), the same public list the
+community events facet uses.
 
 ## License
 

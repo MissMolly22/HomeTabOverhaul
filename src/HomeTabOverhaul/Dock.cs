@@ -44,6 +44,9 @@ internal static class Dock
 
     public static bool IsFolder(RadiantDashScreen? screen) => screen != null && screen.Slot.Tag == FolderTag;
     private static bool IsCustom(RadiantDashScreen screen) => screen.Slot.Tag == CustomTag;
+    // Added by an install button (or by one in an earlier version: RedX+, the cloud mirrors); can be deleted here.
+    private static bool IsInstalled(RadiantDashScreen screen) =>
+        screen.Slot.Tag?.StartsWith(DockTabs.InstalledTag, StringComparison.Ordinal) == true;
 
     // The screens under a slot, in dock order (a slot's children are kept sorted by OrderOffset).
     private static List<RadiantDashScreen> ScreensUnder(Slot? parent)
@@ -218,37 +221,34 @@ internal static class Dock
         if (!screen.ActiveColor.IsDriven && screen.ActiveColor.Value != color) screen.ActiveColor.Value = color;
     }
 
-    // Installed tabs from before their look was kept: the mod knows the right look for some (RedX+ may already show a
-    // blank one); for the others it's what they show now.
+    // Installed tabs (the dash mirror, and ones from earlier versions such as RedX+) keep the look they have; tabs
+    // whose own insides would change it have those parts taken off first (Unhook).
     private static void LockInstalled(RadiantDash dash)
     {
         foreach (var screen in dash.Screens.ToList())
         {
             var tag = screen.Slot.Tag;
             if (tag == null || !tag.StartsWith(DockTabs.InstalledTag, StringComparison.Ordinal)) continue;
-            var def = Actions.Find(tag.Substring(DockTabs.InstalledTag.Length));
-            if (!Unhook(screen)) Lock(screen, def);
+            if (!Unhook(screen)) Lock(screen);
             // Drivers just destroyed let go of their fields at the end of the update.
             else screen.RunInUpdates(1, () => Guard.Home.Run("keeping a dock tab's look", () =>
             {
                 if (screen.IsRemoved) return;
-                Lock(screen, def);
+                Lock(screen);
                 RestoreOrder(dash);
                 Regather(dash); // its name is back, so a folder can find it again
             }));
         }
     }
 
-    private static void Lock(RadiantDashScreen screen, Actions.Def? def)
+    // The look kept for it: what's stored (once locked) or what it shows now.
+    private static void Lock(RadiantDashScreen screen)
     {
-        var look = def?.Look;
-        if (def?.ScreenName != null && !screen.Slot.Name_Field.IsDriven && screen.Slot.Name != def.ScreenName)
-            screen.Slot.Name = def.ScreenName;
-        if (!IsLocked(screen) || !screen.Label.IsDriven || !screen.Icon.IsDriven)
-            LockLook(screen, look?.Label ?? screen.Label.Value ?? screen.Slot.Name, look?.Icon ?? screen.Icon.Value,
-                look?.Color ?? screen.ActiveColor.Value);
-        else
-            LockColor(screen, look?.Color ?? StoredColor(screen)); // locked before colours were
+        var look = screen.Slot.FindChild(LookName);
+        var label = look?.GetComponent<ValueField<string>>()?.Value.Value ?? screen.Label.Value ?? screen.Slot.Name;
+        var icon = look?.GetComponent<ValueField<Uri>>()?.Value.Value ?? screen.Icon.Value;
+        var color = look?.GetComponent<ValueField<colorX?>>()?.Value.Value ?? StoredColor(screen) ?? screen.ActiveColor.Value;
+        LockLook(screen, label, icon, color);
     }
 
     // Installed tabs whose own insides drive their name, order, label, icon or colour (RedX+ does, from variables its
@@ -511,7 +511,7 @@ internal static class Dock
             }
             else if (!IsFolder(screen) && folders.Count > 0)
                 Act(ui, "Into folder", FolderColor.MulRGB(0.6f), 170f, editor, () => MoveInto(dash, screen, folders[0]));
-            if (IsFolder(screen) || IsCustom(screen))
+            if (IsFolder(screen) || IsCustom(screen) || IsInstalled(screen))
             {
                 Button? delete = null;
                 delete = Act(ui, "Delete", DeleteColor, 130f, editor, () => Delete(dash, screen, editor, delete!), refresh: false);

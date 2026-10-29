@@ -157,9 +157,7 @@ internal static class HomeModes
             Guard.Home.Run("placing the Home facets without tabs", () =>
             {
                 foreach (var placement in Layout.FlatFacets) HomeBuilder.AddFacet(grid, placement);
-                foreach (var install in Layout.FlatInstalls)
-                    Actions.InstallInto(grid, install.Record, "Home facet",
-                        message => ResoniteMod.Msg($"Installing into the Home without tabs: {message}"), install.Rect);
+                foreach (var placement in Layout.FlatLive) HomeBuilder.AddFacet(grid, placement);
                 grid.NotifyModified();
             });
         });

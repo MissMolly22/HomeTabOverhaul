@@ -14,7 +14,7 @@ public class HomeTabOverhaul : ResoniteMod
 
     public override string Name => "HomeTabOverhaul";
     public override string Author => "Miss-Molly";
-    public override string Version => "1.0.0";
+    public override string Version => "1.1.0";
 
     [AutoRegisterConfigKey]
     internal static readonly ModConfigurationKey<bool> Enabled = new("enabled",

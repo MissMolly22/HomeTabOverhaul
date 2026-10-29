@@ -7,7 +7,7 @@
     <ResonitePath Condition="'$(ResonitePath)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Resonite</ResonitePath>
     <ResoniteInstallOnBuild>true</ResoniteInstallOnBuild>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    <Version>1.0.0</Version>
+    <Version>1.1.0</Version>
     <Authors>Miss-Molly</Authors>
   </PropertyGroup>
 

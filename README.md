@@ -4,7 +4,7 @@ A [ResoniteModLoader](https://github.com/resonite-modding-group/ResoniteModLoade
 **Home** screen: big everyday facets on top, fold-out tabs of facets below, and a **Dock** tab for rearranging the
 dash's dock into folders.
 
-![The new Home: profile, status and big tiles on top, the tab column, a tab, and Worlds You're In below](docs/home.jpg)
+![The new Home: online status, profile, storage, big tiles and batteries on top; below, the tab column, Platform Info with Resonite Events, and Worlds You're In](docs/home.jpg)
 
 > **Note:** this is a vibe-coded mod. It was made with [Claude Code](https://claude.com/claude-code), Anthropic's AI
 > coding assistant: I described what I wanted and tested every step in-game, and Claude wrote the code.
@@ -23,7 +23,7 @@ Your current Home is kept as a dock tab called **Home (old)**, then the Home is 
 - Online status, your profile (log in / out) and storage
 - Big tiles: Open Home, Full Body Calibrator, Seated Mode, and **Respawn** (warns you to save your work first; press
   twice)
-- Left and right controller and headset batteries
+- Left and right controller and headset batteries (live: a coloured bar, the percentage, and ⚡ while charging)
 
 **Tabs** (the column on the left of the bottom half)
 
@@ -38,14 +38,14 @@ Your current Home is kept as a dock tab called **Home (old)**, then the Home is 
 
 - In UI Edit mode, **New Tab +** adds a blank tab; the box under the list renames or deletes the open tab. The list
   pages when there are more tabs than fit.
-- **Worlds You're In** sits on the right of the bottom half whichever tab is open: press a world to switch to it, ✕
-  (twice) to leave it.
+- **Worlds You're In** sits on the right of the bottom half whichever tab is open. It lists the worlds you have open,
+  who's hosting and how many people are there; press a world to switch to it, ✕ (twice) to leave it.
 - **Dimness** darkens everything you see (0–80 %), like SteamVR's dimming. Only you see it.
 - **Dash Colour** tints the background of every dash screen.
-- **Install Dash Mirror** adds a dock tab that shows you like a mirror (Mirror / Camera, Front / Back — or click the
-  picture — and Near / Normal / Wide), then
-  turns into **Uninstall Dash Mirror** (press twice).
-- **Resonite Events** lists upcoming community events; press one for its description.
+- **Install Dash Mirror** adds a dock tab that shows you like a mirror, then turns into **Uninstall Dash Mirror**
+  (press twice). Its buttons switch Mirror / Camera, Front / Back (or click the picture) and Near / Normal / Wide.
+- **Resonite Events** lists upcoming community events, with the ones happening now in green; press one for its
+  description.
 
 **Local mirror and local light**
 
@@ -65,7 +65,7 @@ In UI Edit mode:
 - **Delete** (press twice) removes a tab or folder you made, or an installed tab; a folder's tabs go back on the
   dock.
 
-Folders, the order and your tabs are saved with the dash and keep working without the mod. Only a full dash reset in
+Folders, the order, colours and your tabs are saved with the dash and kept through restarts; only a full dash reset in
 the game resets them.
 
 **Desktop UI editing**
@@ -93,7 +93,8 @@ Change these in the RML mod settings or in `rml_config/HomeTabOverhaul.json`. Th
 - **No cloud items.** Everything on the Home is built by the mod itself or is the game's own. The only thing it
   fetches is the public events list from `https://resonite-communities.com/v1/events` (at most every 15 minutes, while
   the events list is showing).
-- **Before uninstalling the mod,** turn `enabled` off so Home (old) is your Home again.
+- **Before uninstalling the mod,** turn `enabled` off: Home (old) becomes your Home again and every tab goes back on
+  the dock.
 
 ## If a Resonite update breaks it
 

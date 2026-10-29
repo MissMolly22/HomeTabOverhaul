@@ -1,0 +1,24 @@
+<Project Sdk="Remora.Resonite.Sdk">
+
+  <PropertyGroup>
+    <ResoniteProjectType>mod</ResoniteProjectType>
+    <!-- Classic RML loaded through Libraries/ResoniteModLoader.dll. Plain "ResoniteModLoader" would mean MonkeyLoader's compatibility pack. -->
+    <ResoniteTargetModLoader>ResoniteModLoaderStandalone</ResoniteTargetModLoader>
+    <ResonitePath Condition="'$(ResonitePath)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Resonite</ResonitePath>
+    <ResoniteInstallOnBuild>true</ResoniteInstallOnBuild>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <Version>0.1.0</Version>
+    <Authors>Miss-Molly</Authors>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <ResoniteReference Include="FrooxEngine" />
+    <ResoniteReference Include="FrooxEngine.Store" />
+    <ResoniteReference Include="SkyFrost.Base.Models" />
+    <ResoniteReference Include="Elements.Assets" />
+    <ResoniteReference Include="Elements.Core" />
+    <ResoniteReference Include="Renderite.Shared" />
+  </ItemGroup>
+
+</Project>

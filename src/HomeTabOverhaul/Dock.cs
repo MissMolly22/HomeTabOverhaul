@@ -131,6 +131,7 @@ internal static class Dock
     {
         var names = Remembered(folder);
         names.Remove(name);
+        if (string.IsNullOrEmpty(name)) keep = false; // a tab that lost its name can't be found by it
         if (keep) names.Add(name);
         Contents(folder).Tag = string.Join(NameSeparator, names);
     }
@@ -225,13 +226,49 @@ internal static class Dock
         {
             var tag = screen.Slot.Tag;
             if (tag == null || !tag.StartsWith(DockTabs.InstalledTag, StringComparison.Ordinal)) continue;
-            var look = Actions.Find(tag.Substring(DockTabs.InstalledTag.Length))?.Look;
-            if (!IsLocked(screen))
-                LockLook(screen, look?.Label ?? screen.Label.Value ?? screen.Slot.Name, look?.Icon ?? screen.Icon.Value,
-                    look?.Color ?? screen.ActiveColor.Value);
-            else
-                LockColor(screen, look?.Color ?? StoredColor(screen)); // locked before colours were
+            var def = Actions.Find(tag.Substring(DockTabs.InstalledTag.Length));
+            if (!Unhook(screen)) Lock(screen, def);
+            // Drivers just destroyed let go of their fields at the end of the update.
+            else screen.RunInUpdates(1, () => Guard.Home.Run("keeping a dock tab's look", () =>
+            {
+                if (screen.IsRemoved) return;
+                Lock(screen, def);
+                RestoreOrder(dash);
+                Regather(dash); // its name is back, so a folder can find it again
+            }));
         }
+    }
+
+    private static void Lock(RadiantDashScreen screen, Actions.Def? def)
+    {
+        var look = def?.Look;
+        if (def?.ScreenName != null && !screen.Slot.Name_Field.IsDriven && screen.Slot.Name != def.ScreenName)
+            screen.Slot.Name = def.ScreenName;
+        if (!IsLocked(screen) || !screen.Label.IsDriven || !screen.Icon.IsDriven)
+            LockLook(screen, look?.Label ?? screen.Label.Value ?? screen.Slot.Name, look?.Icon ?? screen.Icon.Value,
+                look?.Color ?? screen.ActiveColor.Value);
+        else
+            LockColor(screen, look?.Color ?? StoredColor(screen)); // locked before colours were
+    }
+
+    // Installed tabs whose own insides drive their name, order, label, icon or colour (RedX+ does, from variables its
+    // installer would have set; without it they come back blank after a restart) have those drivers removed, so the
+    // stored look and the dock's order apply. Returns whether any were.
+    private static bool Unhook(RadiantDashScreen screen)
+    {
+        var look = screen.Slot.FindChild(LookName);
+        var removed = false;
+        foreach (var field in new IField[] { screen.Slot.Name_Field, screen.Slot.OrderOffset_Field, screen.Label, screen.Icon, screen.ActiveColor })
+        {
+            if (!field.IsDriven) continue;
+            var driver = (field.ActiveLink as IWorldElement)?.FindNearestParent<Component>();
+            if (driver == null || driver.IsRemoved || (look != null && driver.Slot.IsChildOf(look, includeSelf: true)) ||
+                !driver.Slot.IsChildOf(screen.Slot, includeSelf: true)) continue;
+            ResoniteMod.Msg($"Took {driver.GetType().Name} off dock tab \"{screen.Slot.Name}\" ({field.Name}).");
+            driver.Destroy();
+            removed = true;
+        }
+        return removed;
     }
 
     private static bool Movable(RadiantDashScreen screen) => !screen.Slot.OrderOffset_Field.IsDriven;
@@ -535,7 +572,7 @@ internal static class Dock
         var last = ScreensUnder(contents).LastOrDefault();
         screen.Slot.SetParent(contents, keepGlobalTransform: false);
         screen.Slot.SetIdentityTransform();
-        screen.Slot.OrderOffset = (last?.Slot.OrderOffset ?? 0) + 100;
+        if (Movable(screen)) screen.Slot.OrderOffset = (last?.Slot.OrderOffset ?? 0) + 100;
         if (from != null && IsFolder(from)) { Remember(from, screen.Slot.Name, keep: false); BuildTiles(dash, from); }
         Remember(folder, screen.Slot.Name, keep: true);
         BuildTiles(dash, folder);

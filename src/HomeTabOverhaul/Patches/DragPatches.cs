@@ -23,7 +23,7 @@ internal static class DragPatches
     private static bool BeforeNestedProcessEvent(NestedCanvas __instance, Canvas.InteractionData eventData, ref bool __result)
     {
         // Cheap checks first: this runs for every pointer event on every facet, in every world.
-        if (Guard.Drag.Disabled || eventData.source is not RelayTouchSource || !__instance.World.IsUserspace()) return true;
+        if (Guard.Drag.Disabled || eventData.source is not RelayTouchSource || !__instance.World.IsUserspace() || !HomeTabOverhaul.Active) return true;
         var skip = false;
         Guard.Drag.Run("routing the mouse to a facet grid", () => skip = DesktopDrag.ShouldSkipFacet(__instance, eventData));
         if (!skip) return true;
@@ -34,7 +34,7 @@ internal static class DragPatches
     private static bool BeforeProcessEvent(FacetContainer __instance, Canvas.InteractionData eventData, ref bool __result)
     {
         if (Guard.Drag.Disabled || eventData.source is not RelayTouchSource || __instance is not GridContainer grid ||
-            !grid.World.IsUserspace()) return true;
+            !grid.World.IsUserspace() || !HomeTabOverhaul.Active) return true;
         var handled = false;
         var result = false;
         Guard.Drag.Run("moving a facet with the mouse", () => handled = DesktopDrag.Handle(grid, eventData, ref result));

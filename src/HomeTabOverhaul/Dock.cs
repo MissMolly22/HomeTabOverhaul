@@ -115,6 +115,59 @@ internal static class Dock
         RestoreOrder(dash);
     }
 
+    // ---- The mod switched off and on ("enabled") ------------------------------------------------------------------
+
+    // Off: the dock as it is without the mod. Tabs in folders go back on the dock (their folders still remember them),
+    // and the tabs the mod made (folders, new tabs, the Dash Mirror) are set aside off the dock. On: they come back,
+    // the folders take their tabs again and the saved order returns. Nothing is deleted either way.
+    private const string SetAsideName = "HomeTabOverhaul Set Aside Dock Tabs";
+
+    private static bool MadeByMod(RadiantDashScreen screen) =>
+        IsFolder(screen) || IsCustom(screen) || screen.Slot.Tag == DockTabs.InstalledTag + DashMirror.Id;
+
+    public static void SwitchOff(RadiantDash dash)
+    {
+        var container = dash.ScreensContainer;
+        if (container == null) return;
+        var made = OnDock(dash).Where(MadeByMod).ToList();
+        if (made.Count == 0) return;
+        RememberOrder(dash);
+        foreach (var folder in made.Where(IsFolder))
+            foreach (var screen in Inside(folder))
+            {
+                screen.Slot.SetParent(container, keepGlobalTransform: false);
+                screen.Slot.SetIdentityTransform();
+                if (screen.IsShown && dash.CurrentScreen.Target != screen) screen.Hide();
+            }
+        var aside = container.Parent.FindChild(SetAsideName) ?? container.Parent.AddSlot(SetAsideName);
+        foreach (var screen in made)
+        {
+            if (dash.CurrentScreen.Target == screen) dash.CurrentScreen.Target = null;
+            screen.Slot.SetParent(aside, keepGlobalTransform: false);
+            screen.Hide();
+        }
+        dash.MarkScreensDirty();
+        dash.NotifyModified();
+        ResoniteMod.Msg($"HomeTabOverhaul is off: set aside {made.Count} dock tab(s) and folder(s) it made.");
+    }
+
+    public static void SwitchOn(RadiantDash dash)
+    {
+        var container = dash.ScreensContainer;
+        var aside = container?.Parent?.FindChild(SetAsideName);
+        if (container == null || aside == null || aside.ChildrenCount == 0) return;
+        foreach (var child in aside.Children.ToList())
+        {
+            child.SetParent(container, keepGlobalTransform: false);
+            child.SetIdentityTransform();
+        }
+        Regather(dash);
+        RestoreOrder(dash);
+        foreach (var folder in OnDock(dash).Where(IsFolder)) BuildTiles(dash, folder);
+        dash.MarkScreensDirty();
+        ResoniteMod.Msg("HomeTabOverhaul is on: its dock tabs and folders are back.");
+    }
+
     public static void OnFolderShown(RadiantDashScreen folder)
     {
         var dash = DashOf(folder.Slot);

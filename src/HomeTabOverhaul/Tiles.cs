@@ -1,12 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Elements.Assets;
 using Elements.Core;
 using FrooxEngine;
 using FrooxEngine.UIX;
 using Renderite.Shared;
-using ResoniteModLoader;
 
 namespace HomeTabOverhaul;
 
@@ -19,7 +16,7 @@ internal static class Tiles
 {
     // The game's built-in icons (the cloud templates use their own images).
     private static readonly Uri HomeIcon = OfficialAssets.Graphics.Icons.Dash.CloudHome;
-    private static readonly Uri CalibratorIcon = OfficialAssets.Graphics.Icons.Dash.Armature;
+    private static readonly Uri CalibratorIcon = OfficialAssets.Graphics.Icons.Dash.VivePuck; // the tracker, as the game's facet has
     private static readonly colorX Brown = new(0.2823529541492462f, 0.22352942824363708f, 0.16470588743686676f, 1f, ColorProfile.sRGB);
     private static readonly colorX Purple = new(0.2862745225429535f, 0.18431372940540314f, 0.3921568989753723f, 1f, ColorProfile.sRGB);
 
@@ -123,64 +120,15 @@ internal static class Tiles
         return new Tile(facet, button, text, (StaticTexture2D)sprite.Texture.Target);
     }
 
-    // ---- The game's own Full Body Calibrator icon -------------------------------------------------------------------
+    // Tiles built by an earlier version with a stand-in icon get the tracker icon.
+    private static readonly Uri[] OldCalibratorIcons = [OfficialAssets.Graphics.Icons.Dash.Armature];
 
-    // The game's Full Body Calibrator facet (a cloud template the game loads) has its own icon, which isn't among the
-    // built-in icons. Rather than the mod naming that image, the game's facet is loaded once, out of sight, and the
-    // tile takes the icon it uses (TemplatePatches calls OnCalibratorLoaded). The tile then keeps it in the saved dash.
-    private const string CalibratorTileName = "Full Body Calibrator Tile";
-    private const string ProbeName = "HomeTabOverhaul Calibrator Icon Probe";
-    private static Uri? _calibratorIcon;
-    private static bool _probing;
-
-    // Tiles still showing the stand-in icon get the game's one (loading the game's facet to find it, if needed).
     public static void EnsureCalibratorIcon(World userspace)
     {
-        var waiting = CalibratorGlyphs(userspace).Where(t => t.URL.Value == CalibratorIcon).ToList();
-        if (waiting.Count == 0) return;
-        if (_calibratorIcon != null)
+        foreach (var facet in userspace.RootSlot.GetComponentsInChildren<Facet>(f => f.Slot.Name == "Full Body Calibrator Tile"))
         {
-            foreach (var texture in waiting) texture.URL.Value = _calibratorIcon;
-            return;
-        }
-        if (_probing) return;
-        _probing = true;
-        var probe = userspace.AddSlot(ProbeName);
-        probe.PersistentSelf = false;
-        probe.LocalPosition = new float3(0f, -10000f, 0f);
-        probe.LocalScale = float3.Zero;
-        probe.AttachComponent<FullBodyCalibratorFacetPreset>();
-        // If the template never loads (offline), stop waiting.
-        probe.RunInSeconds(60f, () =>
-        {
-            _probing = false;
-            if (!probe.IsRemoved) probe.Destroy();
-        });
-    }
-
-    public static void OnCalibratorLoaded(Slot root)
-    {
-        if (root.World == null || !root.World.IsUserspace()) return;
-        // The icon is the template's picture that isn't a lighting texture (.exr); the game ships it as .webp.
-        var urls = root.GetComponentsInChildren<StaticTexture2D>().Select(t => t.URL.Value)
-            .Where(u => u != null && !u.AbsolutePath.EndsWith(".exr", StringComparison.OrdinalIgnoreCase)).ToList();
-        var icon = urls.FirstOrDefault(u => u!.AbsolutePath.EndsWith(".webp", StringComparison.OrdinalIgnoreCase)) ?? urls.LastOrDefault();
-        var probe = root.FindParent(s => s.Name == ProbeName);
-        if (icon != null)
-        {
-            _calibratorIcon = icon;
-            foreach (var texture in CalibratorGlyphs(root.World).Where(t => t.URL.Value == CalibratorIcon)) texture.URL.Value = icon;
-            ResoniteMod.Msg("Full Body Calibrator tile: using the game's icon.");
-        }
-        if (probe != null)
-        {
-            _probing = false;
-            probe.Destroy();
+            var texture = facet.Slot.FindChildInHierarchy("Glyph")?.GetComponent<StaticTexture2D>();
+            if (texture != null && Array.IndexOf(OldCalibratorIcons, texture.URL.Value) >= 0) texture.URL.Value = CalibratorIcon;
         }
     }
-
-    private static IEnumerable<StaticTexture2D> CalibratorGlyphs(World world) =>
-        world.RootSlot.GetComponentsInChildren<Facet>(f => f.Slot.Name == CalibratorTileName)
-            .Select(f => f.Slot.FindChildInHierarchy("Glyph")?.GetComponent<StaticTexture2D>())
-            .Where(t => t != null)!;
 }

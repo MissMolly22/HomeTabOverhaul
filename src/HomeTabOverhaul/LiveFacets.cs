@@ -97,7 +97,7 @@ internal static class LiveFacets
     private static void Schedule(World world) => world.RunInSeconds(1f, () =>
     {
         if (world.IsDestroyed || Guard.Home.Disabled) return;
-        Guard.Home.Run("updating the live facets", () => Tick(world));
+        if (HomeTabOverhaul.Active) Guard.Home.Run("updating the live facets", () => Tick(world));
         Schedule(world);
     });
 
@@ -284,10 +284,11 @@ internal static class LiveFacets
             iconRect.AnchorMax.Value = new float2(0f, 1f);
             iconRect.OffsetMin.Value = new float2(14f, 14f);
             iconRect.OffsetMax.Value = new float2(96f, -14f);
-            var image = icon.AttachComponent<Image>();
-            image.Sprite.Target = icon.AttachSprite(kind == HeadsetKind ? OfficialAssets.Graphics.Icons.General.VR_Headset : OfficialAssets.Common.Icons.Hand);
+            // The hand icon is a left hand; the right controller's is mirrored.
+            var image = icon.AttachComponent<RawImage>();
+            image.Texture.Target = icon.AttachTexture(kind == HeadsetKind ? OfficialAssets.Graphics.Icons.General.VR_Headset : OfficialAssets.Common.Icons.Hand);
             image.PreserveAspect.Value = true;
-            if (kind == LeftKind) icon.LocalScale = new float3(-1f, 1f, 1f); // a left hand
+            if (kind == RightKind) image.UVRect.Value = new Rect(1f, 0f, -1f, 1f);
 
             var bar = content.AddSlot("Bar");
             var barRect = bar.AttachComponent<RectTransform>();
@@ -307,7 +308,10 @@ internal static class LiveFacets
             valueRect.OffsetMax.Value = new float2(-12f, 0f);
             value = valueSlot.AttachComponent<Text>();
             value.Align = Alignment.MiddleRight;
-            value.AutoSizeMax.Value = 40f;
+            value.HorizontalAutoSize.Value = true;
+            value.VerticalAutoSize.Value = true;
+            value.AutoSizeMax.Value = 34f;
+            value.AutoSizeMin.Value = 8f;
             value.ParseRichText.Value = false;
         }
         fill.GetComponent<RectTransform>()!.AnchorMax.Value = new float2(known ? level : 0f, 1f);

@@ -53,12 +53,26 @@ internal static class HomeModes
         world?.RunSynchronously(() => Guard.Home.Run("applying the Home settings", () =>
         {
             var dash = world.RootSlot.GetComponentInChildren<RadiantDash>();
-            if (dash != null) Apply(dash);
+            if (dash == null) return;
+            Apply(dash);
+            // Switched (back) on: what the mod sets up when the dash loads, and the saved Dimness and Dash Colour.
+            if (HomeTabOverhaul.Active)
+            {
+                Patches.ScreenPatches.SetUp(dash);
+                QuickSettings.Apply(dash);
+            }
         }));
     }
 
     public static void Apply(RadiantDash dash)
     {
+        // The whole mod on or off: its dock tabs set aside or back, and its tint and dimming off or back.
+        if (!Setting(HomeTabOverhaul.Enabled))
+        {
+            Dock.SwitchOff(dash);
+            QuickSettings.Off(dash);
+        }
+        else Dock.SwitchOn(dash);
         var home = FindHome(dash);
         if (home == null) return;
         var old = FindOld(dash);

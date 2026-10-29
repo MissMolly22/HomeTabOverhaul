@@ -19,14 +19,12 @@ internal static class TemplatePatches
         harmony.Patch(method, postfix: new HarmonyMethod(typeof(TemplatePatches), nameof(AfterOnLoaded)));
     }
 
-    private static void AfterOnLoaded(TemplateFacetPreset __instance, Slot root)
+    private static void AfterOnLoaded(Slot root)
     {
-        if (Guard.Home.Disabled) return;
+        if (Guard.Home.Disabled || !HomeTabOverhaul.Active) return;
         Guard.Home.Run("putting a facet's icon on the left", () =>
         {
             if (root == null || !root.World.IsUserspace()) return;
-            // The game's Full Body Calibrator facet carries the icon the tile uses (Tiles).
-            if (__instance is FullBodyCalibratorFacetPreset) Tiles.OnCalibratorLoaded(root);
             var facet = root.GetComponentInParents<Facet>();
             var changed = false;
             foreach (var flip in (facet?.Slot ?? root).GetComponentsInChildren<DynamicValueVariable<bool>>(v => v.VariableName.Value == "flip_horizontal"))

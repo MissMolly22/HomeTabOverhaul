@@ -128,6 +128,14 @@ internal static class QuickSettings
         foreach (var screen in dash.Screens) TintScreen(screen, _tint.Value);
     }
 
+    // The mod switched off: every dash screen back to its own background, and no dimming.
+    public static void Off(RadiantDash dash)
+    {
+        foreach (var screen in dash.Screens) TintScreen(screen, UserspaceRadiantDash.DEFAULT_BACKGROUND);
+        _tint = null;
+        Dimmer.Set(0f);
+    }
+
     // Called when any dash screen is shown: older screens (Settings, Inventory, Contacts…) build their background then,
     // and don't save it, so it has to be tinted again.
     public static void OnScreenShown(RadiantDashScreen screen)

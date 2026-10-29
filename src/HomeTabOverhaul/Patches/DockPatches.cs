@@ -32,7 +32,7 @@ internal static class DockPatches
     // A few updates later: the mod registering it may still be setting it up (and naming it).
     private static void AfterRegisterScreen(RadiantDash __instance)
     {
-        if (Guard.Home.Disabled || !__instance.World.IsUserspace()) return;
+        if (Guard.Home.Disabled || !__instance.World.IsUserspace() || !HomeTabOverhaul.Active) return;
         var dash = __instance;
         dash.RunInUpdates(5, () =>
         {

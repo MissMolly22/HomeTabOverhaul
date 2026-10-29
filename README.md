@@ -42,7 +42,8 @@ Your current Home is kept as a dock tab called **Home (old)**, then the Home is 
   (twice) to leave it.
 - **Dimness** darkens everything you see (0–80 %), like SteamVR's dimming. Only you see it.
 - **Dash Colour** tints the background of every dash screen.
-- **Install Dash Mirror** adds a dock tab that shows you like a mirror (Mirror / Camera, Near / Normal / Wide), then
+- **Install Dash Mirror** adds a dock tab that shows you like a mirror (Mirror / Camera, Front / Back — or click the
+  picture — and Near / Normal / Wide), then
   turns into **Uninstall Dash Mirror** (press twice).
 - **Resonite Events** lists upcoming community events; press one for its description.
 
@@ -83,7 +84,7 @@ Change these in the RML mod settings or in `rml_config/HomeTabOverhaul.json`. Th
 
 | Setting | Default | What it does |
 |---|---|---|
-| `enabled` | true | Off: **Home (old)** becomes the Home again (or, without it, the Home loses its tabs). On again: the new Home comes back as you left it. Dock tabs and folders stay either way. |
+| `enabled` | true | Turns the whole mod on or off. Off: **Home (old)** is the Home again (or, without it, the Home loses its tabs), tabs in dock folders go back on the dock, the folders, tabs and Dash Mirror the mod made are set aside, and Dash Colour and Dimness switch off. On again: everything comes back as you left it. |
 | `home_tabs` | true | Off: one Home page with the game's facets in their usual places and the mod's around them. Each layout keeps its own changes when you switch. |
 | `show_dividers` | true | The divider lines between the Home's top, its tabs and the side area. |
 

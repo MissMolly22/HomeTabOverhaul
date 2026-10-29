@@ -23,24 +23,37 @@ internal static class ScreenPatches
     private static void AfterShow(RadiantDashScreen __instance)
     {
         if (!__instance.World.IsUserspace()) return;
-        if (!Guard.Actions.Disabled)
+        var active = HomeTabOverhaul.Active;
+        if (active && !Guard.Actions.Disabled)
             Guard.Actions.Run("tinting a dash screen", () => QuickSettings.OnScreenShown(__instance));
         if (Guard.Home.Disabled) return;
         var dash = __instance.Slot.GetComponentInParents<RadiantDash>();
         if (dash != null && !Seen.TryGetValue(dash, out _))
         {
             Seen.Add(dash, new object());
+            // Puts the dash in the state the settings ask for (with the mod off: as it is without it).
             Guard.Home.Run("applying the Home settings", () => HomeModes.Apply(dash));
-            Guard.Home.Run("updating the mirror tab", () => DashMirror.Upgrade(dash));
-            Guard.Home.Run("setting up the dock folders", () => Dock.Setup(dash));
-            Guard.Home.Run("finding the calibrator icon", () => Tiles.EnsureCalibratorIcon(dash.World));
-            Guard.Home.Run("opening the Home", () => HomeModes.OpenHome(dash));
-            Guard.Home.Run("starting the live facets", () => LiveFacets.Start(dash));
+            if (active)
+            {
+                SetUp(dash);
+                Guard.Home.Run("opening the Home", () => HomeModes.OpenHome(dash));
+            }
         }
+        if (!active) return;
         // A folder's buttons are rebuilt each time it's opened (they must point at this session's dash).
         if (Dock.IsFolder(__instance))
             Guard.Home.Run("opening a dock folder", () => Dock.OnFolderShown(__instance));
         if (__instance is GridContainerScreen)
             Guard.Home.Run("showing the Home", () => TabsController.OnScreenShown(__instance));
+    }
+
+    // What the mod sets up once the dash has loaded (or the mod is switched back on): the mirror tab, the dock's
+    // folders, order and colours, the calibrator tile's icon, and the live facets.
+    public static void SetUp(RadiantDash dash)
+    {
+        Guard.Home.Run("updating the mirror tab", () => DashMirror.Upgrade(dash));
+        Guard.Home.Run("setting up the dock folders", () => Dock.Setup(dash));
+        Guard.Home.Run("updating the calibrator icon", () => Tiles.EnsureCalibratorIcon(dash.World));
+        Guard.Home.Run("starting the live facets", () => LiveFacets.Start(dash));
     }
 }

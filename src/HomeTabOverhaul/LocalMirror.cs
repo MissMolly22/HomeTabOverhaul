@@ -80,7 +80,7 @@ internal static class LocalMirror
             for (var i = 0; i < Resolutions.Length; i++)
             {
                 var (name, size) = Resolutions[i];
-                var button = PhysicalButtons.Box(content, name, new float3(Size.x / 2f - 0.06f - (Resolutions.Length - 1 - i) * 0.11f, y, 0f), 0.1f);
+                var button = PhysicalButtons.Box(content, name, new float3(Size.x / 2f - 0.075f - (Resolutions.Length - 1 - i) * 0.155f, y, 0f), 0.145f);
                 var set = button.AttachComponent<ButtonValueSet<int2>>();
                 set.TargetValue.Target = texture.Size;
                 set.SetValue.Value = size;

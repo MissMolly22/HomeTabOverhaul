@@ -18,9 +18,9 @@ public class HomeTabOverhaul : ResoniteMod
 
     [AutoRegisterConfigKey]
     internal static readonly ModConfigurationKey<bool> Enabled = new("enabled",
-        "Use the new Home screen. On the first run your current Home is kept as a dock tab called \"Home (old)\". " +
-        "Turned off, \"Home (old)\" becomes the Home again (or, without it, the Home loses its tabs); turned back on, " +
-        "the new Home returns as you left it. Dock tabs and folders stay either way.", () => true);
+        "Turns the whole mod on or off. Off: \"Home (old)\" is the Home again (or, without it, the Home loses its tabs), " +
+        "tabs in dock folders go back on the dock, the folders, tabs and Dash Mirror the mod made are set aside, and the " +
+        "dash colour and dimming are switched off. On again: everything comes back as you left it.", () => true);
 
     [AutoRegisterConfigKey]
     internal static readonly ModConfigurationKey<bool> ShowTabs = new("home_tabs",
@@ -32,6 +32,9 @@ public class HomeTabOverhaul : ResoniteMod
         "The divider lines between the Home's top, its tabs and the side area.", () => true);
 
     internal static ModConfiguration? Config;
+
+    // The "enabled" setting: off, the mod does nothing (HomeModes puts the dash back the way it was without it).
+    internal static bool Active => Config?.GetValue(Enabled) ?? true;
 
     public override void OnEngineInit()
     {

@@ -21,6 +21,7 @@ internal static class ButtonPatches
     {
         var tag = __instance.Slot.Tag;
         if (tag == null || !tag.StartsWith("HomeTabOverhaul.", StringComparison.Ordinal)) return; // the cheap check first
+        if (!HomeTabOverhaul.Active) return;
         if (tag.StartsWith(Actions.TagPrefix, StringComparison.Ordinal) && !Guard.Actions.Disabled)
             Guard.Actions.Run("a HomeTabOverhaul button", () => Actions.OnPressed(__instance));
         else if (QuickSettings.IsTintButton(__instance) && !Guard.Actions.Disabled && __instance.World.IsUserspace())

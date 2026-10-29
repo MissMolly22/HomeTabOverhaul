@@ -62,7 +62,7 @@ internal static class PhysicalButtons
         TextRenderer? front = null;
         foreach (var side in Faces(button, "Label", size))
         {
-            side.LocalScale = float3.One * (size.y * 1.5f);
+            side.LocalScale = float3.One * (size.y * 2.4f);
             var renderer = side.AttachComponent<TextRenderer>();
             renderer.Text.Value = text;
             if (front == null) front = renderer;

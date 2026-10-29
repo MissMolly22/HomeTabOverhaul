@@ -176,11 +176,28 @@ internal static class Dock
         if (!screen.Label.IsDriven) screen.Label.DriveFrom(labelField.Value);
         if (!screen.Icon.IsDriven) screen.Icon.DriveFrom(iconField.Value);
         slot.Tag = LockedTag;
-        StoreColor(screen, color);
+        LockColor(screen, color);
         screen.NotifyModified();
     }
 
     private static bool IsLocked(RadiantDashScreen screen) => screen.Slot.FindChild(LookName)?.Tag == LockedTag;
+
+    // An installed tab's colour is driven from the stored one, so neither the game's load-time reset nor the tab's
+    // own code can change it.
+    private static void LockColor(RadiantDashScreen screen, colorX? color)
+    {
+        var field = LookSlot(screen).GetComponentOrAttach<ValueField<colorX?>>();
+        field.Value.Value = color;
+        if (!screen.ActiveColor.IsDriven) screen.ActiveColor.DriveFrom(field.Value);
+    }
+
+    private static colorX? StoredColor(RadiantDashScreen screen)
+    {
+        var slot = screen.Slot.FindChild(LookName);
+        var has = slot?.GetComponent<ValueField<bool>>();
+        var stored = slot?.GetComponent<ValueField<colorX>>();
+        return has != null && stored != null && has.Value.Value ? stored.Value.Value : null;
+    }
 
     private static void StoreColor(RadiantDashScreen screen, colorX? color)
     {
@@ -197,7 +214,7 @@ internal static class Dock
         var stored = slot?.GetComponent<ValueField<colorX>>();
         if (has == null || stored == null) return;
         colorX? color = has.Value.Value ? stored.Value.Value : null;
-        if (screen.ActiveColor.Value != color) screen.ActiveColor.Value = color;
+        if (!screen.ActiveColor.IsDriven && screen.ActiveColor.Value != color) screen.ActiveColor.Value = color;
     }
 
     // Installed tabs from before their look was kept: the mod knows the right look for some (RedX+ may already show a
@@ -207,12 +224,17 @@ internal static class Dock
         foreach (var screen in dash.Screens.ToList())
         {
             var tag = screen.Slot.Tag;
-            if (tag == null || !tag.StartsWith(DockTabs.InstalledTag, StringComparison.Ordinal) || IsLocked(screen)) continue;
+            if (tag == null || !tag.StartsWith(DockTabs.InstalledTag, StringComparison.Ordinal)) continue;
             var look = Actions.Find(tag.Substring(DockTabs.InstalledTag.Length))?.Look;
-            LockLook(screen, look?.Label ?? screen.Label.Value ?? screen.Slot.Name, look?.Icon ?? screen.Icon.Value,
-                look?.Color ?? screen.ActiveColor.Value);
+            if (!IsLocked(screen))
+                LockLook(screen, look?.Label ?? screen.Label.Value ?? screen.Slot.Name, look?.Icon ?? screen.Icon.Value,
+                    look?.Color ?? screen.ActiveColor.Value);
+            else
+                LockColor(screen, look?.Color ?? StoredColor(screen)); // locked before colours were
         }
     }
+
+    private static bool Movable(RadiantDashScreen screen) => !screen.Slot.OrderOffset_Field.IsDriven;
 
     // ---- Remembering the dock's order ------------------------------------------------------------------------------
 
@@ -438,9 +460,9 @@ internal static class Dock
         {
             var index = siblings.IndexOf(screen);
             var up = Act(ui, "▲", HomeBuilder.Navy, 56f, editor, () => Move(dash, siblings, index, -1));
-            up.Enabled = index > 0;
+            up.Enabled = index > 0 && Movable(screen) && Movable(siblings[index - 1]);
             var down = Act(ui, "▼", HomeBuilder.Navy, 56f, editor, () => Move(dash, siblings, index, 1));
-            down.Enabled = index < siblings.Count - 1;
+            down.Enabled = index < siblings.Count - 1 && Movable(screen) && Movable(siblings[index + 1]);
             if (folder != null)
             {
                 if (folders.Count > 1)
@@ -498,7 +520,9 @@ internal static class Dock
 
     private static void Renumber(List<RadiantDashScreen> order)
     {
-        for (var i = 0; i < order.Count; i++) order[i].Slot.OrderOffset = i * 100;
+        // A tab whose own code drives its position (an older RedX+ copy) can't be moved; the others still are.
+        for (var i = 0; i < order.Count; i++)
+            if (!order[i].Slot.OrderOffset_Field.IsDriven) order[i].Slot.OrderOffset = i * 100;
         // The dock's own order is remembered (RestoreOrder).
         var dash = order.Count > 0 ? DashOf(order[0].Slot) : null;
         if (dash != null && order[0].Slot.Parent == dash.ScreensContainer) RememberOrder(dash);

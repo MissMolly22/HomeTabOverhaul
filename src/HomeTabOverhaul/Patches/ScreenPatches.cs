@@ -31,7 +31,9 @@ internal static class ScreenPatches
         {
             Seen.Add(dash, new object());
             Guard.Home.Run("applying the Home settings", () => HomeModes.Apply(dash));
+            Guard.Home.Run("updating the mirror tab", () => DashMirror.Upgrade(dash));
             Guard.Home.Run("setting up the dock folders", () => Dock.Setup(dash));
+            Guard.Home.Run("finding the calibrator icon", () => Tiles.EnsureCalibratorIcon(dash.World));
             Guard.Home.Run("opening the Home", () => HomeModes.OpenHome(dash));
             Guard.Home.Run("starting the live facets", () => LiveFacets.Start(dash));
         }

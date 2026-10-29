@@ -27,7 +27,7 @@ internal static class Actions
     private static readonly colorX Purple = new(0.45f, 0.25f, 0.75f);
     private static readonly colorX Teal = new(0.1f, 0.5f, 0.5f);
 
-    public static readonly Def DashMirror = new("dash-mirror", Kind.InstallDockTab, "Install Dash Mirror",
+    public static readonly Def DashMirror = new(global::HomeTabOverhaul.DashMirror.Id, Kind.InstallDockTab, "Install Dash Mirror",
         OfficialAssets.Graphics.Icons.General.Mirror, Teal, global::HomeTabOverhaul.DashMirror.Build);
     public static readonly Def LocalMirrorButton = new("local-mirror", Kind.SpawnLocalMirror, "Spawn Local Mirror",
         OfficialAssets.Graphics.Icons.General.Mirror, Purple);

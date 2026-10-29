@@ -73,6 +73,14 @@ internal static class LiveFacets
 
     public static void Rescan() => _lastScan = double.MinValue;
 
+    // One line in the log the first time each kind is drawn (to see the facets come alive).
+    private static int _lastCount = -1;
+    private static readonly HashSet<string> LoggedKinds = new();
+    private static void Logged(string kind)
+    {
+        if (LoggedKinds.Add(kind)) ResoniteMod.Msg($"Live facets: drew {kind}.");
+    }
+
     // Once per session, from the first time the dash shows a screen.
     public static void Start(RadiantDash dash)
     {
@@ -82,6 +90,7 @@ internal static class LiveFacets
         var manager = world.Engine.WorldManager;
         manager.WorldsChanged += () => _worldsDirty = true;
         manager.WorldFocused += _ => _worldsDirty = true;
+        ResoniteMod.Msg("Live facets: started.");
         Schedule(world);
     }
 
@@ -102,6 +111,8 @@ internal static class LiveFacets
             Found.AddRange(world.RootSlot.GetComponentsInChildren<Facet>(f => f.Slot.Tag != null &&
                 f.Slot.Tag.StartsWith(TagPrefix, StringComparison.Ordinal)).Select(f => f.Slot));
             foreach (var gone in LastDrawn.Keys.Where(s => s.IsRemoved).ToList()) LastDrawn.Remove(gone);
+            if (Found.Count != _lastCount) ResoniteMod.Msg($"Live facets: {Found.Count} found.");
+            _lastCount = Found.Count;
         }
         var worldsDirty = _worldsDirty;
         _worldsDirty = false;
@@ -133,12 +144,17 @@ internal static class LiveFacets
         }
     }
 
-    private static Slot? ContentOf(Slot facet) => facet.GetComponent<Facet>()?.Canvas.Target?.Slot.FindChild("Background")?.FindChild(ContentName);
+    // The facet already has the engine's own "Background" (made with the Facet); the mod's panel is the last one, drawn
+    // over it, so the content goes in that.
+    private static Slot? BackgroundOf(Slot facet) =>
+        facet.GetComponent<Facet>()?.Canvas.Target?.Slot.Children.LastOrDefault(c => c.Name == "Background");
+
+    private static Slot? ContentOf(Slot facet) => BackgroundOf(facet)?.FindChild(ContentName);
 
     // A fresh, unsaved content slot inside the facet's background.
     private static UIBuilder NewContent(Slot facet, out Slot content)
     {
-        var background = facet.GetComponent<Facet>()!.Canvas.Target.Slot.FindChild("Background")!;
+        var background = BackgroundOf(facet)!;
         background.FindChild(ContentName)?.Destroy();
         content = background.AddSlot(ContentName);
         content.PersistentSelf = false;
@@ -174,6 +190,7 @@ internal static class LiveFacets
 
     private static void DrawWorlds(Slot facet)
     {
+        Logged("worlds");
         var manager = facet.Engine.WorldManager;
         var ui = NewContent(facet, out var content);
         ui.VerticalLayout(8f, 14f).ForceExpandHeight.Value = false;
@@ -238,6 +255,7 @@ internal static class LiveFacets
 
     private static void DrawBattery(Slot facet, string kind)
     {
+        Logged(kind);
         var input = facet.World.InputInterface;
         IBatteryLevel? device = kind switch
         {
@@ -304,6 +322,7 @@ internal static class LiveFacets
 
     private static void DrawEvents(Slot facet)
     {
+        Logged("events");
         EventList.MarkDrawn(facet);
         var ui = NewContent(facet, out _);
         ui.VerticalLayout(8f, 14f).ForceExpandHeight.Value = false;

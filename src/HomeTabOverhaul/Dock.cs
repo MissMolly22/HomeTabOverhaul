@@ -177,8 +177,8 @@ internal static class Dock
         labelField.Value.Value = label;
         var iconField = slot.GetComponentOrAttach<ValueField<Uri>>();
         iconField.Value.Value = icon;
-        if (!screen.Label.IsDriven) screen.Label.DriveFrom(labelField.Value);
-        if (!screen.Icon.IsDriven) screen.Icon.DriveFrom(iconField.Value);
+        if (!screen.Label.IsDriven) Copy(slot, labelField.Value, screen.Label);
+        if (!screen.Icon.IsDriven) Copy(slot, iconField.Value, screen.Icon);
         slot.Tag = LockedTag;
         LockColor(screen, color);
         screen.NotifyModified();
@@ -186,13 +186,22 @@ internal static class Dock
 
     private static bool IsLocked(RadiantDashScreen screen) => screen.Slot.FindChild(LookName)?.Tag == LockedTag;
 
+    // The copy lives on the look slot (DriveFrom would put it on the screen's own slot, where Unhook takes it for
+    // the tab's own driver and removes it).
+    private static void Copy<T>(Slot look, IField<T> source, IField<T> target)
+    {
+        var copy = look.AttachComponent<ValueCopy<T>>();
+        copy.Source.Target = source;
+        copy.Target.Target = target;
+    }
+
     // An installed tab's colour is driven from the stored one, so neither the game's load-time reset nor the tab's
     // own code can change it.
     private static void LockColor(RadiantDashScreen screen, colorX? color)
     {
         var field = LookSlot(screen).GetComponentOrAttach<ValueField<colorX?>>();
         field.Value.Value = color;
-        if (!screen.ActiveColor.IsDriven) screen.ActiveColor.DriveFrom(field.Value);
+        if (!screen.ActiveColor.IsDriven) Copy(LookSlot(screen), field.Value, screen.ActiveColor);
     }
 
     private static colorX? StoredColor(RadiantDashScreen screen)

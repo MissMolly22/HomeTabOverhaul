@@ -158,6 +158,8 @@ internal static class HomeBuilder
             Actions.RefreshLabels(dash);
             // Saved Dimness and Dash Colour.
             QuickSettings.Apply(dash);
+            // The Full Body Calibrator tile's icon, from the game's own facet.
+            Tiles.EnsureCalibratorIcon(screen.World);
         }));
 
     private static async Task<bool> WaitForLayout(RadiantDashScreen screen, GridContainer homeGrid, GridContainer[] tabGrids)

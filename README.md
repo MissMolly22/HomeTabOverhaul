@@ -70,7 +70,7 @@ In UI Edit mode on desktop, drag a facet to move it, or drag its edge or corner 
 ## Installation
 
 1. Install [ResoniteModLoader](https://github.com/resonite-modding-group/ResoniteModLoader) (RML 5.x).
-2. Put `HomeTabOverhaul.dll` in `rml_mods` in your Resonite folder.
+2. Download `HomeTabOverhaul.dll` from [Releases](../../releases) and put it in `rml_mods` in your Resonite folder.
 3. Start Resonite. The log should contain `[ResoniteModLoader/HomeTabOverhaul] Patched the dash`.
 
 ## Settings
